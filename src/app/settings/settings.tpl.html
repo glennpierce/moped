@@ -10,5 +10,18 @@
       <button class="btn btn-default" ng-click="verifyConnection($event)">Verify connection</button>
     </div>
   </div>
+  <div>
+    <label for="icecastUri">Icecast url used by Allplay speakers</label>
+    <div>
+      <input ng-model="settings.icecastUri" type="text" size="50" />
+    </div>
+    <br>
+    <div>
+    <label style="display: block;" ng-repeat="device in settings.allplayDevices">
+      <input type="checkbox" checklist-model="settings.selectedDevices" checklist-value="device.id"> {{device.name}}
+    </label>
+    </div>
+  </div>
+  <br>
   <button type="submit" class="btn btn-primary" ng-click="saveSettings()">Save settings</button>
 </form>

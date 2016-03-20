@@ -1,0 +1,194 @@
+diff --git a/Gruntfile.js b/Gruntfile.js
+index 6e0ac4b..edb215c 100644
+--- a/Gruntfile.js
++++ b/Gruntfile.js
+@@ -683,6 +683,9 @@ module.exports = function ( grunt ) {
+       }
+     });
+     grunt.file.copy('ext.conf', grunt.config( 'mopidy_package_dir' ) + '/ext.conf'); 
++    grunt.file.copy('AllPlayController.py', grunt.config( 'mopidy_package_dir' ) + '/AllPlayController.py'); 
++
++
+   });
+ 
+ };
+diff --git a/__init__.py.tpl b/__init__.py.tpl
+index fe378c2..5eb33cb 100644
+--- a/__init__.py.tpl
++++ b/__init__.py.tpl
+@@ -2,10 +2,82 @@ from __future__ import unicode_literals
+ 
+ import os
+ 
++import tornado.web
++
+ from mopidy import config, ext
+ 
++from AllPlayController import AllPlayController
++
++
+ __version__ = '<%= version %>'
+ 
++
++allplayerController = AllPlayController()
++
++
++class RequestHandlerGetAllPlayDevices(tornado.web.RequestHandler):
++    def initialize(self, core):
++        self.core = core
++
++    def get(self):
++        self.write({'allplay_devices': allplayerController.GetPlayers()})
++
++
++class RequestHandlerCreateZone(tornado.web.RequestHandler):
++    def initialize(self, core):
++        self.core = core
++
++    def post(self):
++        selected_devices = self.get_argument('selected_devices')
++        player = allplayerController.GetAllPlayer()
++        player.CreateZone(selected_devices)
++
++class RequestHandlerPlayUrl(tornado.web.RequestHandler):
++    def initialize(self, core):
++        self.core = core
++
++    def post(self):
++        icecastUri = self.get_argument('icecastUri')
++        player = allplayerController.GetAllPlayer()
++        player.PlayUrl(icecastUri)
++
++class RequestHandlerPlay(tornado.web.RequestHandler):
++    def initialize(self, core):
++        self.core = core
++    def get(self):
++        player = allplayerController.GetAllPlayer()
++        player.Play()
++
++class RequestHandlerStop(tornado.web.RequestHandler):
++    def initialize(self, core):
++        self.core = core
++
++    def get(self):
++        player = allplayerController.GetAllPlayer()
++        player.Stop()
++
++class RequestHandlerPause(tornado.web.RequestHandler):
++    def initialize(self, core):
++        self.core = core
++
++    def get(self):
++        player = allplayerController.GetAllPlayer()
++        player.Pause()
++
++
++def allplay_factory(config, core):
++    return [
++        ('/get_devices', RequestHandlerGetAllPlayDevices, {'core': core}),
++        ('/create_zone', RequestHandlerCreateZone, {'core': core}),
++        ('/play_uri', RequestHandlerPlayUrl, {'core': core}),
++        ('/play', RequestHandlerPlay, {'core': core}),
++        ('/stop', RequestHandlerStop, {'core': core}),
++        ('/pause', RequestHandlerPause, {'core': core}),
++    ]
++
++
+ class MopedExtension(ext.Extension):
+     dist_name = 'Mopidy-Moped'
+     ext_name = 'moped'
+@@ -20,3 +92,10 @@ class MopedExtension(ext.Extension):
+             'name': self.ext_name,
+             'path': os.path.join(os.path.dirname(__file__), 'static'),
+         })
++
++        registry.add('http:app', {
++            'name': self.ext_name,
++            'factory': allplay_factory,
++        })
++
++
+diff --git a/bower.json b/bower.json
+index eff5b91..0c3ff73 100644
+--- a/bower.json
++++ b/bower.json
+@@ -12,7 +12,8 @@
+     "jquery": "~2.1.0",
+     "lastfm-api": "~0.0.1",
+     "modernizr": "~2.8.3",
+-    "fastclick": "~1.0.6"
++    "fastclick": "~1.0.6",
++    "checklist-model": "~0.1.4"
+   },
+   "dependencies": {},
+   "resolutions": {
+diff --git a/build.config.js b/build.config.js
+index 55dcd98..e3edbbc 100644
+--- a/build.config.js
++++ b/build.config.js
+@@ -74,7 +74,8 @@ module.exports = {
+       'vendor/placeholders/angular-placeholders-0.0.1-SNAPSHOT.min.js',
+       'vendor/lodash/lodash.js',
+       'vendor/bootstrap-slider/bootstrap-slider.js',
+-      'vendor/lastfm-api/lastfm-api.js'
++      'vendor/lastfm-api/lastfm-api.js',
++      'vendor/angular/checklist-model.js'
+     ],
+     css: [
+       'vendor/bootstrap-slider/slider.css'
+diff --git a/dist/assets/css/moped-0.7.0.css b/dist/assets/css/moped-0.7.0.css
+index 41e00b3..c85a273 100644
+--- a/dist/assets/css/moped-0.7.0.css
++++ b/dist/assets/css/moped-0.7.0.css
+@@ -7110,7 +7110,7 @@ body {
+   font-size: 20px;
+ }
+ .controls .volume-slider {
+-  width: 120px;
++  width: 100px;
+ }
+ .controls .slider.slider-horizontal .slider-track {
+   top: 30%;
+diff --git a/dist/assets/moped-0.7.0.js b/dist/assets/moped-0.7.0.js
+index 9d1a26d..285911a 100644
+--- a/dist/assets/moped-0.7.0.js
++++ b/dist/assets/moped-0.7.0.js
+@@ -1,21 +1,21 @@
+ /**
+- * moped - v0.7.0 - 2015-12-11
++ * moped - v0.7.0 - 2016-03-20
+  * https://github.com/martijnboland/moped
+  *
+- * Copyright (c) 2015 Martijn Boland
++ * Copyright (c) 2016 Martijn Boland
+  * Licensed  <>
+  */
+diff --git a/mopidy_moped/__init__.py b/mopidy_moped/__init__.py
+deleted file mode 100644
+index d5a70fb..0000000
+--- a/mopidy_moped/__init__.py
++++ /dev/null
+@@ -1,22 +0,0 @@
+-from __future__ import unicode_literals
+-
+-import os
+-
+-from mopidy import config, ext
+-
+-__version__ = '0.7.0'
+-
+-class MopedExtension(ext.Extension):
+-    dist_name = 'Mopidy-Moped'
+-    ext_name = 'moped'
+-    version = __version__
+-
+-    def get_default_config(self):
+-        conf_file = os.path.join(os.path.dirname(__file__), 'ext.conf')
+-        return config.read(conf_file)
+-
+-    def setup(self, registry):
+-        registry.add('http:static', {
+-            'name': self.ext_name,
+-            'path': os.path.join(os.path.dirname(__file__), 'static'),
+-        })
+

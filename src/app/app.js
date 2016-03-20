@@ -1,4 +1,5 @@
 angular.module('moped', [
+  'checklist-model',
   'ngTouch',
   'moped.mopidy',
   'moped.search',

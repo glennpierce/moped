@@ -12,7 +12,8 @@
     "jquery": "~2.1.0",
     "lastfm-api": "~0.0.1",
     "modernizr": "~2.8.3",
-    "fastclick": "~1.0.6"
+    "fastclick": "~1.0.6",
+    "checklist-model": "~0.1.4"
   },
   "dependencies": {},
   "resolutions": {

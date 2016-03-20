@@ -1,4 +1,5 @@
 angular.module('moped.settings', [
+  'checklist-model',
   'ngRoute'
 ])
   .config(function config($routeProvider) {
@@ -10,10 +11,20 @@ angular.module('moped.settings', [
       });
   })
 
-  .controller('SettingsCtrl', function SettingsController($scope, $rootScope, $window) {
+  .controller('SettingsCtrl', function SettingsController($scope, $rootScope, $window, $http) {
     $scope.settings = {
-      mopidyUrl: ''
+      mopidyUrl: 'ws://127.0.0.1:6680/mopidy/ws/',
+      icecastUri: 'http://127.0.0.1:8000/mopidy.m3u',
+      selectedDevices: []
     };
+
+    $http({ cache: false, url: '/moped/get_devices', method: 'GET'}).success(
+
+      function (data, status, headers, config) {
+
+         $scope.settings.allplayDevices = data['allplay_devices'];
+      }
+    );
 
     if (window.localStorage && localStorage['moped.mopidyUrl'] !== null) {
       $scope.settings.mopidyUrl = localStorage['moped.mopidyUrl'];
@@ -21,12 +32,16 @@ angular.module('moped.settings', [
 
     $scope.saveSettings = function() {
       if (window.localStorage) {
+
         if ($scope.settings.mopidyUrl !== '' && $scope.settings.mopidyUrl !== null) {
           localStorage['moped.mopidyUrl'] = $scope.settings.mopidyUrl;
         }
         else {
           localStorage['moped.mopidyUrl'] = '';  
         }
+
+        var json_data = JSON.stringify({'selected_devices': $scope.settings.selectedDevices});
+        $http({cache: false, url: '/moped/create_zone', method: 'POST', data: json_data});
 
         $window.alert('Settings are saved.');
         $rootScope.$broadcast('settings:saved');

@@ -74,7 +74,8 @@ module.exports = {
       'vendor/placeholders/angular-placeholders-0.0.1-SNAPSHOT.min.js',
       'vendor/lodash/lodash.js',
       'vendor/bootstrap-slider/bootstrap-slider.js',
-      'vendor/lastfm-api/lastfm-api.js'
+      'vendor/lastfm-api/lastfm-api.js',
+      'vendor/angular/checklist-model.js'
     ],
     css: [
       'vendor/bootstrap-slider/slider.css'

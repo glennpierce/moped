@@ -683,6 +683,9 @@ module.exports = function ( grunt ) {
       }
     });
     grunt.file.copy('ext.conf', grunt.config( 'mopidy_package_dir' ) + '/ext.conf'); 
+    grunt.file.copy('AllPlayController.py', grunt.config( 'mopidy_package_dir' ) + '/AllPlayController.py'); 
+
+
   });
 
 };
