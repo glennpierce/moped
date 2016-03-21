@@ -1,6 +1,7 @@
 angular.module('moped.settings', [
   'checklist-model',
-  'ngRoute'
+  'ngRoute',
+  'moped.allplay'
 ])
   .config(function config($routeProvider) {
     $routeProvider
@@ -11,14 +12,14 @@ angular.module('moped.settings', [
       });
   })
 
-  .controller('SettingsCtrl', function SettingsController($scope, $rootScope, $window, $http) {
+  .controller('SettingsCtrl', function SettingsController($scope, $rootScope, $window, allplayservice) {
     $scope.settings = {
       mopidyUrl: 'ws://127.0.0.1:6680/mopidy/ws/',
-      icecastUri: 'http://127.0.0.1:8000/mopidy.m3u',
+      icecastUri: 'http://192.168.1.5:8000/mopidy.m3u',
       selectedDevices: []
     };
 
-    $http({ cache: false, url: '/moped/get_devices', method: 'GET'}).success(
+    allplayservice.get_devices().success(
 
       function (data, status, headers, config) {
 
@@ -30,6 +31,14 @@ angular.module('moped.settings', [
       $scope.settings.mopidyUrl = localStorage['moped.mopidyUrl'];
     }
 
+    if (window.localStorage && localStorage['moped.icecastUri'] !== null) {
+      $scope.settings.icecastUri = localStorage['moped.icecastUri'];
+    }
+
+    if (window.localStorage && localStorage['moped.selectedDevices'] !== null && localStorage['moped.selectedDevices'] !== '') {
+      $scope.settings.selectedDevices = JSON.parse(localStorage['moped.selectedDevices']);
+    }
+    
     $scope.saveSettings = function() {
       if (window.localStorage) {
 
@@ -40,10 +49,14 @@ angular.module('moped.settings', [
           localStorage['moped.mopidyUrl'] = '';  
         }
 
-        var json_data = JSON.stringify({'selected_devices': $scope.settings.selectedDevices});
-        $http({cache: false, url: '/moped/create_zone', method: 'POST', data: json_data});
+        localStorage['moped.icecastUri'] = $scope.settings.icecastUri;
+        localStorage['moped.selectedDevices'] = JSON.stringify($scope.settings.selectedDevices);
 
-        $window.alert('Settings are saved.');
+        allplayservice.create_zone($scope.settings.selectedDevices, $scope.settings.icecastUri);
+        
+        // Have to change speakers more often and this can get annoying
+        //$window.alert('Settings are saved.');
+        
         $rootScope.$broadcast('settings:saved');
       }
     };

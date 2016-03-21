@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-import os
+import os, json, time, logging
 
 import tornado.web
 
@@ -9,10 +9,14 @@ from mopidy import config, ext
 from AllPlayController import AllPlayController
 
 
+logger = logging.getLogger(__name__)
+
+
 __version__ = '<%= version %>'
 
 
 allplayerController = AllPlayController()
+last_icecast_url = None
 
 
 class RequestHandlerGetAllPlayDevices(tornado.web.RequestHandler):
@@ -28,20 +32,56 @@ class RequestHandlerCreateZone(tornado.web.RequestHandler):
         self.core = core
 
     def post(self):
-        print "here"
-        print self.get_argument('selected_devices')
-        selected_devices = self.get_argument('selected_devices')
+        global last_icecast_url
+        data = json.loads(self.request.body)
         player = allplayerController.GetAllPlayer()
-        player.CreateZone(selected_devices)
+        player.PlayUrl(data['icecastUri'])
+        last_icecast_url = data['icecastUri']
+        time.sleep(2)
+        player.CreateZone(data['selected_devices'])
+        
+
+class RequestHandlerReSetupZone(tornado.web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+    def get(self):
+        global last_icecast_url
+
+        player = allplayerController.GetAllPlayer()
+        logger.info("hmm icecast uriL %s", last_icecast_url)
+        if last_icecast_url != None:
+            logger.info("using last icecast uriL %s", last_icecast_url)
+            player.PlayUrl(last_icecast_url)
+        player.ReSetupZone()
+        
+
+class RequestHandlerPlayLastUrl(tornado.web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+    def get(self):
+        global last_icecast_url
+        player = allplayerController.GetAllPlayer()
+        logger.info("harley last_icecast_url: %s", str(last_icecast_url))
+        if last_icecast_url != None:
+            player.PlayUrl(last_icecast_url)
+
 
 class RequestHandlerPlayUrl(tornado.web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
     def post(self):
-        icecastUri = self.get_argument('icecastUri')
+        global last_icecast_url
+
+        last_icecast_url = self.get_argument('icecastUri')
+
+        logger.critical("bob %s", last_icecast_url)
+
         player = allplayerController.GetAllPlayer()
-        player.PlayUrl(icecastUri)
+        player.PlayUrl(last_icecast_url)
+
 
 class RequestHandlerPlay(tornado.web.RequestHandler):
     def initialize(self, core):
@@ -58,6 +98,7 @@ class RequestHandlerStop(tornado.web.RequestHandler):
         player = allplayerController.GetAllPlayer()
         player.Stop()
 
+
 class RequestHandlerPause(tornado.web.RequestHandler):
     def initialize(self, core):
         self.core = core
@@ -67,14 +108,26 @@ class RequestHandlerPause(tornado.web.RequestHandler):
         player.Pause()
 
 
+class RequestHandlerResume(tornado.web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+    def get(self):
+        player = allplayerController.GetAllPlayer()
+        player.Resume()
+
+
 def allplay_factory(config, core):
     return [
         ('/get_devices', RequestHandlerGetAllPlayDevices, {'core': core}),
         ('/create_zone', RequestHandlerCreateZone, {'core': core}),
+        ('/resetup_zone', RequestHandlerReSetupZone, {'core': core}),
+        ('/play_lasturi', RequestHandlerPlayLastUrl, {'core': core}),
         ('/play_uri', RequestHandlerPlayUrl, {'core': core}),
         ('/play', RequestHandlerPlay, {'core': core}),
         ('/stop', RequestHandlerStop, {'core': core}),
         ('/pause', RequestHandlerPause, {'core': core}),
+        ('/resume', RequestHandlerResume, {'core': core}),
     ]
 
 

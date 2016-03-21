@@ -4,7 +4,7 @@ angular.module('moped.playercontrols', [
   'moped.widgets'
 ])
 
-.controller('PlayerControlsCtrl', function PlayerControlsController($scope, mopidyservice) {
+.controller('PlayerControlsCtrl', function PlayerControlsController($scope, mopidyservice, allplayservice) {
 
   $scope.volume = 0;
   $scope.isPlaying = false;
@@ -16,7 +16,7 @@ angular.module('moped.playercontrols', [
 
   $scope.$on('mopidy:event:playbackStateChanged', function(event, data) {
     $scope.isPlaying = data.new_state === 'playing';
-    $scope.$apply();
+    $scope.$apply();    
   });
 
   $scope.$on('mopidy:state:online', function() {
@@ -40,10 +40,12 @@ angular.module('moped.playercontrols', [
     if ($scope.isPlaying) {
       // pause
       mopidyservice.pause();
+      allplayservice.pause();
     }
     else {
       // play
       mopidyservice.play();
+      allplayservice.create_zone(JSON.parse(localStorage['moped.selectedDevices']), localStorage['moped.icecastUri']);
     }
   };
   
@@ -57,6 +59,7 @@ angular.module('moped.playercontrols', [
   
   $scope.stop = function() {
     mopidyservice.stopPlayback();
+    allplayservice.pause();
   };
 
   $scope.toggleRandom = function () {

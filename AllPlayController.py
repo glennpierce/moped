@@ -7,6 +7,7 @@ from AllJoynPy import AllJoyn, AboutListener, MsgArg, AboutData, \
 
 import time
 import sys
+import logging
 
 import ctypes as C
 
@@ -19,6 +20,9 @@ SERVICE_PATH = "/net/allplay/MediaPlayer"
 SERVICE_PORT = 1
 
 
+logger = logging.getLogger(__name__)
+
+
 class AllPlayer(object):
 
     proxyBusObject = None
@@ -29,6 +33,7 @@ class AllPlayer(object):
         self.session_id = session_id
         self.device_name = device_name
         self.device_id = device_id
+        self.device_ids = []
 
         if not AllPlayer.proxyBusObject:
             AllPlayer.proxyBusObject = ProxyBusObject.ProxyBusObject(
@@ -42,6 +47,8 @@ class AllPlayer(object):
         # We must remove the id that this player is as the speaker does
         # not accept it.
         self.device_ids = [d for d in device_ids if d != self.device_id]
+
+        logger.info("%s CreateZone: %s", str(self.device_id), str(self.device_ids))
 
         self.arg = MsgArg.MsgArg()
         size = len(self.device_ids)
@@ -58,6 +65,12 @@ class AllPlayer(object):
         except QStatusException:
             print replyMsg
             raise
+
+        logger.info("created allplay zone")
+
+    def ReSetupZone(self):
+        logger.info("%s, resetting up zone: %s", str(self.device_id), str(self.device_ids))
+        self.CreateZone(self.device_ids)
 
     @staticmethod
     def OnReplyMessageCallback(message, context):
@@ -91,25 +104,33 @@ class AllPlayer(object):
 
     def Next(self):
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Next", None, 0, 0)
+            'net.allplay.MediaPlayer', "Next", None, 0, 0)
 
     def Pause(self):
+        logger.info("sending pause to allplay system")
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Pause", None, 0, 0)
+            'net.allplay.MediaPlayer', "Pause", None, 0, 0)
 
+# ixb
+# track no
+# start position milli
+# paused state boolean
     def Play(self):
+        logger.info("sending play to allplay system")
         AllPlayer.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Play", None, 0, 0)
+            'net.allplay.MediaPlayer', "Play", None, 0, 0)
 
     def Previous(self):
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Previous", None, 0, 0)
+            'net.allplay.MediaPlayer', "Previous", None, 0, 0)
 
     def Resume(self):
+        logger.info("sending resume to allplay system")
         self.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MCU', "Resume", None, 0, 0)
+            'net.allplay.MediaPlayer', "Resume", None, 0, 0)
 
     def Stop(self):
+        logger.info("sending stop to allplay system")
         AllPlayer.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Stop", None, 0, 0)
 
@@ -126,6 +147,7 @@ class AllPlayer(object):
                         [uri, 'Dummy', 'Dummy', 'Dummy', 200, 'Dummy', 'Dummy'])
         AllPlayer.proxyBusObject.MethodCallNoReply(
             'net.allplay.MCU', "PlayItem", inputs, 7, 0)
+        logger.info("sending play url to allplay system: %s", uri)
 
     def AdjustVolumePercent(self, percent):
         percent = min(max(0.0, percent), 100.0)

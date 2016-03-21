@@ -1,5 +1,5 @@
 angular.module('moped.mopidy', [])
-  .factory('mopidyservice', function($q, $rootScope) {
+  .factory('mopidyservice', function($q, $rootScope, $timeout, allplayservice) {
 
     //var consoleLog = console.log.bind(console);
     var consoleLog = function () {};
@@ -160,6 +160,11 @@ angular.module('moped.mopidy', [])
                   return tlTrack.track.uri === track.uri;
                 });
                 self.mopidy.playback.play({ tl_track: tlTrackToPlay });
+     
+                $timeout(function() {  
+                    allplayservice.create_zone(JSON.parse(localStorage['moped.selectedDevices']), localStorage['moped.icecastUri']);
+                }, 500);
+   
               });
             return;
           }
@@ -180,6 +185,12 @@ angular.module('moped.mopidy', [])
                   return tlTrack.track.uri === track.uri;
                 });
                 self.mopidy.playback.play({ tl_track: tlTrackToPlay });
+                 
+                $timeout(function() {  
+                    allplayservice.create_zone(JSON.parse(localStorage['moped.selectedDevices']), localStorage['moped.icecastUri']);
+                }, 500);
+
+
               }, consoleError);
           } , consoleError);
       },

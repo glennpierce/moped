@@ -75,7 +75,7 @@ module.exports = {
       'vendor/lodash/lodash.js',
       'vendor/bootstrap-slider/bootstrap-slider.js',
       'vendor/lastfm-api/lastfm-api.js',
-      'vendor/angular/checklist-model.js'
+      'vendor/checklist-model/checklist-model.js'
     ],
     css: [
       'vendor/bootstrap-slider/slider.css'
