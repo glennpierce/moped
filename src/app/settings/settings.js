@@ -55,7 +55,7 @@ angular.module('moped.settings', [
         allplayservice.create_zone($scope.settings.selectedDevices, $scope.settings.icecastUri);
         
         // Have to change speakers more often and this can get annoying
-        //$window.alert('Settings are saved.');
+        // $window.alert('Settings are saved.');
         
         $rootScope.$broadcast('settings:saved');
       }

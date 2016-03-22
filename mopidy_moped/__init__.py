@@ -38,7 +38,7 @@ class RequestHandlerCreateZone(tornado.web.RequestHandler):
         player.PlayUrl(data['icecastUri'])
         last_icecast_url = data['icecastUri']
         time.sleep(2)
-        player.CreateZone(data['selected_devices'])
+        allplayerController.CreateZone(data['selected_devices'])
         
 
 class RequestHandlerReSetupZone(tornado.web.RequestHandler):
@@ -49,7 +49,6 @@ class RequestHandlerReSetupZone(tornado.web.RequestHandler):
         global last_icecast_url
 
         player = allplayerController.GetAllPlayer()
-        logger.info("hmm icecast uriL %s", last_icecast_url)
         if last_icecast_url != None:
             logger.info("using last icecast uriL %s", last_icecast_url)
             player.PlayUrl(last_icecast_url)

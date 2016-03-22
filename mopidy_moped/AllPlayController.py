@@ -19,7 +19,6 @@ SERVICE_NAME = "net.allplay.MediaPlayer"
 SERVICE_PATH = "/net/allplay/MediaPlayer"
 SERVICE_PORT = 1
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -35,10 +34,9 @@ class AllPlayer(object):
         self.device_id = device_id
         self.device_ids = []
 
-        if not AllPlayer.proxyBusObject:
-            AllPlayer.proxyBusObject = ProxyBusObject.ProxyBusObject(
-                self.bus, self.bus_name, SERVICE_PATH, self.session_id)
-            AllPlayer.proxyBusObject.IntrospectRemoteObject()
+        self.proxyBusObject = ProxyBusObject.ProxyBusObject(
+            self.bus, self.bus_name, SERVICE_PATH, self.session_id)
+        self.proxyBusObject.IntrospectRemoteObject()
 
     def __repr__(self):
         return self.device_name + " (" + self.device_id + ")"
@@ -60,7 +58,7 @@ class AllPlayer(object):
 
         replyMsg = Message.Message(self.bus)
         try:
-            AllPlayer.proxyBusObject.MethodCall(
+            self.proxyBusObject.MethodCall(
                 'net.allplay.ZoneManager', "CreateZone", self.arg, 1, replyMsg, 100000, 0)
         except QStatusException:
             print replyMsg
@@ -111,14 +109,15 @@ class AllPlayer(object):
         self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Pause", None, 0, 0)
 
-# ixb
-# track no
-# start position milli
-# paused state boolean
-    def Play(self):
-        logger.info("sending play to allplay system")
-        AllPlayer.proxyBusObject.MethodCallNoReply(
-            'net.allplay.MediaPlayer', "Play", None, 0, 0)
+    # ixb
+    # track no
+    # start position milli
+    # paused state boolean
+    # Todo takes the above parameters. Not sure we need play now though
+    # def Play(self):
+    #     logger.info("sending play to allplay system")
+    #     self.proxyBusObject.MethodCallNoReply(
+    #         'net.allplay.MediaPlayer', "Play", None, 0, 0)
 
     def Previous(self):
         self.proxyBusObject.MethodCallNoReply(
@@ -131,7 +130,7 @@ class AllPlayer(object):
 
     def Stop(self):
         logger.info("sending stop to allplay system")
-        AllPlayer.proxyBusObject.MethodCallNoReply(
+        self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MediaPlayer', "Stop", None, 0, 0)
 
     def SetPosition(self, position):
@@ -145,7 +144,7 @@ class AllPlayer(object):
         inputs.ArraySet(7, "ssssxss",
                         [C.c_char_p, C.c_char_p, C.c_char_p, C.c_char_p, C.c_longlong, C.c_char_p, C.c_char_p],
                         [uri, 'Dummy', 'Dummy', 'Dummy', 200, 'Dummy', 'Dummy'])
-        AllPlayer.proxyBusObject.MethodCallNoReply(
+        self.proxyBusObject.MethodCallNoReply(
             'net.allplay.MCU', "PlayItem", inputs, 7, 0)
         logger.info("sending play url to allplay system: %s", uri)
 
@@ -153,7 +152,7 @@ class AllPlayer(object):
         percent = min(max(0.0, percent), 100.0)
         param = MsgArg.MsgArg()
         param.SetDouble(percent)
-        AllPlayer.proxyBusObject.MethodCallNoReply(
+        self.proxyBusObject.MethodCallNoReply(
             "org.alljoyn.Control.Volume", "AdjustVolumePercent", param, 1, 0)
 
 
@@ -239,14 +238,14 @@ class AllPlayController(object):
             time.sleep(0.1)
             t += 0.1
 
-        allplayers = []
+        self.allplayers = []
         for p in self.aboutListener.devices.values():
             print "session_id", MyAboutListener.session_id
-            allplayers.append(AllPlayer(self.g_bus, p['busname'], p['session_id'], p['name'], p['id']))
+            self.allplayers.append(AllPlayer(self.g_bus, p['busname'], p['session_id'], p['name'], p['id']))
 
-        player = allplayers[0]
-        print "using: ", player.device_name, "speaker", player.device_id
-        player.Stop()
+        self.player = self.allplayers[0]
+        print "using: ", self.player.device_name, "speaker", self.player.device_id
+        self.player.Stop()
 
     def __del__(self):
         print "Shutting Down"
@@ -256,6 +255,12 @@ class AllPlayController(object):
     def GetPlayers(self):
         return self.aboutListener.devices.values()
 
+    def CreateZone(self, device_ids):
+        # Find the player with the first device _id
+        devices = [p for p in self.allplayers if p.device_id == device_ids[0]]
+        self.player = devices[0]
+        print "using: ", self.player.device_name, "speaker", self.player.device_id
+        self.player.CreateZone(device_ids)
+
     def GetAllPlayer(self):
-        first = self.aboutListener.devices.values()[0]
-        return AllPlayer(self.g_bus, first['busname'], first['session_id'], first['name'], first['id'])
+        return self.player
