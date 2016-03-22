@@ -27,15 +27,15 @@ angular.module('moped.settings', [
       }
     );
 
-    if (window.localStorage && localStorage['moped.mopidyUrl'] !== null) {
+    if (window.localStorage && localStorage['moped.mopidyUrl'] != null) {
       $scope.settings.mopidyUrl = localStorage['moped.mopidyUrl'];
     }
 
-    if (window.localStorage && localStorage['moped.icecastUri'] !== null) {
+    if (window.localStorage && localStorage['moped.icecastUri'] != null) {
       $scope.settings.icecastUri = localStorage['moped.icecastUri'];
     }
 
-    if (window.localStorage && localStorage['moped.selectedDevices'] !== null && localStorage['moped.selectedDevices'] !== '') {
+    if (window.localStorage && localStorage['moped.selectedDevices'] != null && localStorage['moped.selectedDevices'] !== '') {
       $scope.settings.selectedDevices = JSON.parse(localStorage['moped.selectedDevices']);
     }
     
