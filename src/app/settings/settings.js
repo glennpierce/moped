@@ -14,7 +14,7 @@ angular.module('moped.settings', [
 
   .controller('SettingsCtrl', function SettingsController($scope, $rootScope, $window, allplayservice) {
     $scope.settings = {
-      mopidyUrl: 'ws://127.0.0.1:6680/mopidy/ws/',
+      mopidyUrl: 'ws://192.168.1.5:6680/mopidy/ws/',
       icecastUri: 'http://192.168.1.5:8000/mopidy.m3u',
       selectedDevices: []
     };
