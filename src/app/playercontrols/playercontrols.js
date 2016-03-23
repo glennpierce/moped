@@ -12,6 +12,7 @@ angular.module('moped.playercontrols', [
 
   $scope.$on('moped:slidervaluechanged', function(event, value) {
     mopidyservice.setVolume(value);
+    allplayservice.set_volume(value);
   });
 
   $scope.$on('mopidy:event:playbackStateChanged', function(event, data) {

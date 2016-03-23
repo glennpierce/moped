@@ -35,6 +35,10 @@ angular.module('moped.allplay', [])
       },
       get_devices: function() {
         return $http({ cache: false, url: '/moped/get_devices', method: 'GET'});
+      },
+      set_volume: function(volume) {
+        var json_data = JSON.stringify({'volume': volume});
+        return $http({ cache: false, url: '/moped/set_volume', method: 'POST', data: json_data});
       }
     };
   });

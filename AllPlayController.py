@@ -154,6 +154,7 @@ class AllPlayer(object):
         param.SetDouble(percent)
         self.proxyBusObject.MethodCallNoReply(
             "org.alljoyn.Control.Volume", "AdjustVolumePercent", param, 1, 0)
+        logger.info("%s, adjusting volume to %s", str(self.device_id), str(percent))
 
 
 class MySessionListener(SessionListener.SessionListener):
@@ -251,6 +252,11 @@ class AllPlayController(object):
         print "Shutting Down"
         self.g_bus.Stop()
         self.g_bus.Join()
+
+    # Set volume of all speakers
+    def AdjustVolumePercent(self, volume):
+        for p in self.allplayers:
+            p.AdjustVolumePercent(volume)
 
     def GetPlayers(self):
         return self.aboutListener.devices.values()

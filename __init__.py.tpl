@@ -116,6 +116,16 @@ class RequestHandlerResume(tornado.web.RequestHandler):
         player.Resume()
 
 
+class RequestHandlerSetVolume(tornado.web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+    def post(self):
+        data = json.loads(self.request.body)
+        player = allplayerController.GetAllPlayer()
+        allplayerController.AdjustVolumePercent(float(data['volume']))
+
+
 def allplay_factory(config, core):
     return [
         ('/get_devices', RequestHandlerGetAllPlayDevices, {'core': core}),
@@ -127,6 +137,7 @@ def allplay_factory(config, core):
         ('/stop', RequestHandlerStop, {'core': core}),
         ('/pause', RequestHandlerPause, {'core': core}),
         ('/resume', RequestHandlerResume, {'core': core}),
+        ('/set_volume', RequestHandlerSetVolume, {'core': core}),
     ]
 
 
