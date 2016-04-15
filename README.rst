@@ -9,7 +9,7 @@ Moped with allplay settings.
 Installation
 ============
 
-First you need to install AllJoyn library.  For the Debian Apt based distros (eg Raspbian on the RaspberyPI) istall dependant packages ::
+First you need to install AllJoyn library.  For the Debian Apt based distros (eg Raspbian on the RaspberyPI) install dependant packages using Debian package manager ::
 
     apt-get install build-essential maven scons git curl openssl libssl-dev libjson0 libjson0-dev libcap-dev
 	
