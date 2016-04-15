@@ -40,13 +40,21 @@ Now test the AllJoyn Daemon::
     cd ~/WORKING_DIRECTORY/alljoyn/core/alljoyn/build/linux/arm/debug/dist/cpp/bin
     alljoyn-daemon --version
 
+AllJoyn Message Bus Daemon version: v0.00.01
+Copyright AllSeen Alliance.
+
+Build: AllJoyn Library v0.00.01 (Built Fri Apr 15 18:12:18 UTC 2016 by root - Git: alljoyn branch: '(no branch)' tag: 'v15.09a' (+350 changes) commit ref: e289adde2cd7289afbbc09a64a4620d5679d2bdc)
+
 
 Now you have to install my AllJoyn bindings ::
-
+    TODO
 https://github.com/glennpierce/alljoyn_python
 
-You have to have alljoyn-daemon running
+You have to have alljoyn-daemon running ::
+    TODO
 
-Finally install Mopidy and this extension
+Finally install Mopidy and this extension ::
+
+    TODO
 
 
