@@ -46,9 +46,13 @@ Copyright AllSeen Alliance.
 Build: AllJoyn Library v0.00.01 (Built Fri Apr 15 18:12:18 UTC 2016 by root - Git: alljoyn branch: '(no branch)' tag: 'v15.09a' (+350 changes) commit ref: e289adde2cd7289afbbc09a64a4620d5679d2bdc)
 
 
-Now you have to install my AllJoyn bindings ::
-    TODO
-https://github.com/glennpierce/alljoyn_python
+Now you have to download and install my AllJoyn bindings ::
+
+    cd ~/WORKING_DIRECTORY
+    git clone https://github.com/glennpierce/alljoyn_python
+    cd alljoyn_python/
+    python ./setup.py install
+	
 
 You have to have alljoyn-daemon running ::
     TODO
