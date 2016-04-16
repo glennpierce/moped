@@ -13,7 +13,7 @@ First you need to install AllJoyn library.  For the Debian Apt based distros (eg
 
     apt-get install build-essential maven scons git curl openssl libssl-dev libjson0 libjson0-dev libcap-dev
 	
-Setup compile environment download AllJoyn code and compile it::
+Setup compile environment download AllJoyn code and compile it  (this may take quite some time on an embedded processor like the RaspberryPi)::
 	
     mkdir ~/bin
     echo "export PATH=$PATH:~/bin" >> ~/.bashrc
@@ -45,7 +45,12 @@ Copyright AllSeen Alliance.
 
 Build: AllJoyn Library v0.00.01 (Built Fri Apr 15 18:12:18 UTC 2016 by root - Git: alljoyn branch: '(no branch)' tag: 'v15.09a' (+350 changes) commit ref: e289adde2cd7289afbbc09a64a4620d5679d2bdc)
 
+If you can see the AllJoyn-daemon version info, then it means AllJoyn libraries have compiled.  You can proceed to copying them to somewhere suitable on your system::
 
+    cd ~/WORKING_DIRECTORY/alljoyn/core/alljoyn/build/linux/arm/debug/dist/cpp/
+	cp bin/* /usr/bin/
+	cp lib/* /usr/lib/
+		
 Now you have to download and install my AllJoyn bindings ::
 
     cd ~/WORKING_DIRECTORY
@@ -53,37 +58,33 @@ Now you have to download and install my AllJoyn bindings ::
     cd alljoyn_python/
     python ./setup.py install
 
-    The are some samples that can be used to test your AllPlay system.
+Now test the AllJoyn Python Bindings ::
     
-    Try running
-    cd alljoyn_python/
-    alljoyn-daemon &
-    ./samples/AllPlay/AllPlayAboutClient.py
+	killall alljoyn-daemon
+    alljoyn-daemon &  ./samples/AllPlay/AllPlayAboutClient.py
 
-    This should return information for the Allplay speakers we can see on the network.
+This should return information for the Allplay speakers we can see on the network.
 
-    Notes:
+Notes:
 
-        Before running any of the Python AllJoyn code the alljoyn-daemon must be running as
-        the internal AllJoyn router is not exported in the c api so I could not wrap it.
+Before running any of the Python AllJoyn code the alljoyn-daemon must be running as the internal AllJoyn router is not exported in the c api so I could not wrap it.
 
-        Within the samples is a beets plugin ./samples/beetsplug/
-        http://beets.io/ is a Python music indexer / metadata system. 
-        My plugin sets up an angular web page to play music through the allplay system.
-        It may be easier to run than mopidy and moped as Modpidy is not needed and nither is icecast.
-        I found Mopidy and icecast to have some issues together so wrote this.
-        Currently it needs a little design work and a few features but you can list songs add them to a queue 
-        for playing. Should be easier to add features to this.
+Within the samples is a beets plugin ./samples/beetsplug/
+http://beets.io/ is a Python music indexer / metadata system. 
+My plugin sets up an angular web page to play music through the allplay system.
+It may be easier to run than mopidy and moped as Modpidy is not needed and nither is icecast.
+I found Mopidy and icecast to have some issues together so wrote this.
+Currently it needs a little design work and a few features but you can list songs add them to a queue for playing. Should be easier to add features to this.
 
-        To run this plugin
-        Add the plugin directory to the Python path
-        ie  export PYTHONPATH="/opt/alljoyn_python/samples/"
+To run this plugin, Add the plugin directory to the Python path ie::
 
-        Edit the beets config file
+    export PYTHONPATH="/opt/alljoyn_python/samples/"
 
-        vim ~/.config/beets/config.yaml
+Edit the beets config file::
 
-        Add the following
+    nano ~/.config/beets/config.yaml
+
+Add the following::
 
         directory: ~/Music
         library: ~/musiclibrary.blb
@@ -94,39 +95,38 @@ Now you have to download and install my AllJoyn bindings ::
             host: 0.0.0.0
 
 
-        Once the config is save you have to index your music
-       
-        For importing read https://beets.readthedocs.org/en/v1.3.17/guides/main.html
+Once the config is save you have to index your music.  For importing read https://beets.readthedocs.org/en/v1.3.17/guides/main.html
 
-        I used
-        beet import -A /media/External/Music
+I used::
+    beet import -A /media/External/Music
 
-        Once index simply run my plugin
+Once index simply run my plugin::
+	
+    beet allplay --debug
 
-        beet allplay --debug
-
-        This will start a webserver you can access on port 8337
+This will start a webserver you can access on port 8337
 
 
-You have to have alljoyn-daemon running ::
-     Before running any of the Python AllJoyn code the alljoyn-daemon must be running
+You have to have alljoyn-daemon running
+Before running any of the Python AllJoyn code the alljoyn-daemon must be running::
 
      alljoyn-daemon &
 
 
-Finally install Mopidy and this extension ::
+Finally install Mopidy and this extension
   
-    For detailed instructions goto https://mopidy.readthedocs.org/en/latest/installation/
+For detailed instructions goto https://mopidy.readthedocs.org/en/latest/installation/
+Quick setup I used::
 
-    Quick setup I used
     git clone https://github.com/mopidy/mopidy
     python ./setup.py install
     mopidy local scan
 
-    Edit the Mopidy config
+Edit the Mopidy config ::
     ~/.config/mopidy/mopidy.conf
 
-    The audio section should be like
+The audio section should be like ::
+
     [audio]
     output = lamemp3enc ! shout2send mount=mopidy ip=192.168.1.5 port=8000 password=******
 
@@ -135,13 +135,11 @@ Finally install Mopidy and this extension ::
     See https://mopidy.readthedocs.org/en/latest/audio/?highlight=icecast
 
  
-Icecast install ::
+Icecast install
 
-    Due to bug in Mopidy with icecast I added a silence file for icecast.
-
-    See Known issues at https://mopidy.readthedocs.org/en/latest/audio/?highlight=icecast
-
-    My config for icecast added these two sections
+Due to bug in Mopidy with icecast I added a silence file for icecast.
+See Known issues at https://mopidy.readthedocs.org/en/latest/audio/?highlight=icecast
+My config for icecast added these two sections::
 
     <authentication>
         <!-- Sources log in with username 'source' -->
