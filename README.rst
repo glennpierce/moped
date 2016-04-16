@@ -47,9 +47,11 @@ Build: AllJoyn Library v0.00.01 (Built Fri Apr 15 18:12:18 UTC 2016 by root - Gi
 
 If you can see the AllJoyn-daemon version info, then it means AllJoyn libraries have compiled.  You can proceed to copying them to somewhere suitable on your system::
 
-    cd ~/WORKING_DIRECTORY/alljoyn/core/alljoyn/build/linux/arm/debug/dist/cpp/
-	cp bin/* /usr/bin/
-	cp lib/* /usr/lib/
+    cd ~/WORKING_DIRECTORY/alljoyn/core/alljoyn/build/linux/arm/debug/dist/
+	killall alljoyn-daemon
+	cp cpp/bin/* /usr/bin/
+	cp cpp/lib/* /usr/lib/
+	cp c/lib/* /usr/lib/
 		
 Now you have to download and install my AllJoyn bindings ::
 
