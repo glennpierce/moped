@@ -65,7 +65,9 @@ Now test the AllJoyn Python Bindings ::
 
 This should return information for the Allplay speakers we can see on the network.
 
-Notes:
+______
+
+**Notes:**
 
 Before running any of the Python AllJoyn code the alljoyn-daemon must be running as the internal AllJoyn router is not exported in the c api so I could not wrap it.
 
@@ -98,6 +100,7 @@ Add the following::
 Once the config is save you have to index your music.  For importing read https://beets.readthedocs.org/en/v1.3.17/guides/main.html
 
 I used::
+
     beet import -A /media/External/Music
 
 Once index simply run my plugin::
@@ -112,7 +115,6 @@ Before running any of the Python AllJoyn code the alljoyn-daemon must be running
 
      alljoyn-daemon &
 
-
 Finally install Mopidy and this extension
   
 For detailed instructions goto https://mopidy.readthedocs.org/en/latest/installation/
@@ -123,6 +125,7 @@ Quick setup I used::
     mopidy local scan
 
 Edit the Mopidy config ::
+
     ~/.config/mopidy/mopidy.conf
 
 The audio section should be like ::
